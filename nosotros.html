@@ -204,6 +204,12 @@
             position: relative;
             overflow: hidden;
         }
+        .member-photo iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover; /* Recorta para que no haya barras */
+        }
 
         .member-photo::before {
             content: '';
@@ -562,4 +568,5 @@
 </body>
 
 </html>
+
 
