@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etapas de Desarrollo - Noizee</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        /* PATRÓN: Navegación Persistente */
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        nav a.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+        }
+
+        /* PATRÓN: Breadcrumbs */
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            color: #666;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        /* NUEVO: Submenú Scrolleable Sticky - PATRÓN: Navegación Secundaria */
+        .submenu-container {
+            position: sticky;
+            top: 70px;
+            z-index: 999;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .submenu {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .submenu::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .submenu::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .submenu::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        /* Principio de Similitud: elementos del submenú */
+        .submenu-item {
+            padding: 0.8rem 1.5rem;
+            background: #f8f9ff;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        /* PATRÓN: Feedback Visual */
+        .submenu-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .submenu-item.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 3rem;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            scroll-margin-top: 150px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.7rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .section p, .section ul {
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        .section ul {
+            padding-left: 2rem;
+        }
+
+        .problem-section {
+            background: #fff5f5;
+            border-left: 5px solid #f5576c;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .problem-section h3 {
+            color: #d63447;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .objective-section {
+            background: #f0f9ff;
+            border-left: 5px solid #667eea;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .objective-section h3 {
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .styled-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .styled-list li {
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .styled-list li:hover {
+            background: #e8ecff;
+            transform: translateX(8px);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.15);
+        }
+
+        .styled-list li::before {
+            content: '▸';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .user-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+        }
+
+        .member-photo {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-photo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+        }
+
+        .photo-icon {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .member-info {
+            padding: 2rem;
+        }
+
+        .member-name {
+            color: #667eea;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .member-role {
+            color: #764ba2;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .member-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            background: #f8f9ff;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            background: #e8ecff;
+            transform: translateX(5px);
+        }
+
+        .detail-icon {
+            font-size: 1.3rem;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .detail-item strong {
+            color: #667eea;
+        }
+
+        /* NUEVO: Botón de entrevista - PATRÓN: Call to Action */
+        .interview-button {
+            display: block;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .interview-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .interview-button::before {
+            content: '🎥 ';
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
+        }
+
+        .highlight-box h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .highlight-box p {
+            font-size: 1.15rem;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2.5rem 2rem;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+        }
+
+        
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            nav a {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .section {
+                padding: 2rem 1.5rem;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .submenu {
+                padding: 1rem;
+            }
+
+            .submenu-item {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }  
+
+        }
+        
+.process-timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.process-timeline::before {
+    content: '';
+    position: absolute;
+    left: 50px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #3b82f6, #06b6d4);
+    border-radius: 2px;
+}
+
+.process-step {
+    position: relative;
+    padding-left: 120px;
+    margin-bottom: 3rem;
+}
+
+.step-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+    z-index: 1;
+}
+
+.step-content {
+    background: #f0f7ff;
+    padding: 2rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+}
+
+.step-content h3 {
+    color: #1d4ed8;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-content p {
+    color: #555;
+    line-height: 1.7;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 968px) {
+    .process-timeline::before {
+        left: 30px;
+    }
+
+    .process-step {
+        padding-left: 90px;
+    }
+
+    .step-number {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .process-timeline::before {
+        display: none;
+    }
+
+    .process-step {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .step-number {
+        position: relative;
+        margin: 0 auto 1rem;
+    }
+}
+
+/* ==== TIMELINE NOIZEE (INICIO) ==== */
+
+.noizee-timeline-section {
+    background: white;
+    margin-bottom: 3rem;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    scroll-margin-top: 150px;
+}
+
+.noizee-timeline-section h2 {
+    color: #667eea;
+    font-size: 2.3rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.noizee-timeline-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 3rem;
+}
+
+/* Línea del tiempo */
+.noizee-process-timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.noizee-process-timeline::before {
+    content: '';
+    position: absolute;
+    left: 50px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #3b82f6, #06b6d4);
+    border-radius: 2px;
+}
+
+.noizee-process-step {
+    position: relative;
+    padding-left: 120px;
+    margin-bottom: 3rem;
+}
+
+.noizee-step-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+    z-index: 1;
+}
+
+.noizee-step-content {
+    background: #f0f7ff;
+    padding: 2rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+}
+
+.noizee-step-content h3 {
+    color: #1d4ed8;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.noizee-step-content p {
+    color: #555;
+    line-height: 1.7;
+}
+
+/* Responsive timeline */
+@media (max-width: 968px) {
+    .noizee-process-timeline::before {
+        left: 30px;
+    }
+
+    .noizee-process-step {
+        padding-left: 90px;
+    }
+
+    .noizee-step-number {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .noizee-process-timeline::before {
+        display: none;
+    }
+
+    .noizee-process-step {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .noizee-step-number {
+        position: relative;
+        margin: 0 auto 1rem;
+    }
+}
+
+/* ==== PREVISUALIZACIÓN DE ARCHIVOS ==== */
+
+.file-preview {
+    margin-top: 1.5rem;
+    background: #eaf3ff;
+    border: 1px solid #cfe0ff;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.file-preview iframe {
+    width: 100%;
+    max-width: 600px;
+    height: 350px;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+.file-info {
+    text-align: center;
+}
+
+.file-button {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.file-button:hover {
+    background: #2563eb;
+}
+
+    </style>
+</head>
+<body>
+    <!-- PATRÓN: Navegación Persistente -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="descripcion.html" class="active">Etapas de Desarrollo</a></li>
+            <li><a href="juego.html">El Juego</a></li>
+            <li><a href="nosotros.html">Sobre Nosotros</a></li>
+        </ul>
+    </nav>
+
+    <!-- PATRÓN: Breadcrumbs -->
+    <div class="breadcrumb">
+        <a href="index.html">🏠 Inicio</a> / <span>📋 Etapas de Desarrollo</span>
+    </div>
+
+    <div class="page-header">
+        <h1>📋  Etapas de Desarrollo del Proyecto</h1>
+        <p>Proceso de Desarrollo - Noizee</p>
+    </div>
+    
+    <div class="container">
+        <section class="noizee-timeline-section" id="proceso-desarrollo">
+    <h2>Proceso de Desarrollo</h2>
+    <p class="noizee-timeline-subtitle">
+        Del concepto inicial a la implementación final
+    </p>
+
+    <div class="noizee-process-timeline">
+
+    <!-- Paso 1 -->
+    <div class="noizee-process-step">
+        <div class="noizee-step-number">1</div>
+        <div class="noizee-step-content">
+            <h3>📝 Entregable 0</h3>
+            <p>
+                Se redactó un documento sobre la propuesta de nuestro proyecto donde planteamos el problema, 
+                definimos los Objetivos, el público objetivo, qué es lo que hará nuestro proyecto 
+                y un análisis de sistemas que ya existen.
+            </p>
+
+            <!-- Archivo asociado -->
+            <div class="file-preview">
+                <iframe src="archivos/Entregable0.pdf" title="Vista previa de Entregable 0"></iframe>
+                <div class="file-info">
+                    <p><strong>Archivo:</strong> entregable0.pdf</p>
+                    <a href="archivos/Entregable0.pdf" target="_blank" class="file-button">Abrir en nueva pestaña</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="noizee-process-step">
+        <div class="noizee-step-number">2</div>
+        <div class="noizee-step-content">
+            <h3>🔍 Needfinding</h3>
+            <p>
+                Se realizó una búsqueda de necesidades a través de la observación durante el proceso de búsqueda de DJs.
+            </p>
+
+            <!-- Archivo asociado -->
+            <div class="file-preview">
+                <iframe src="archivos/Needfinding.pdf" title="Vista previa de Needfinding"></iframe>
+                <div class="file-info">
+                    <p><strong>Archivo:</strong> Needfinding.pdf</p>
+                    <a href="archivos/Needfinding.pdf" target="_blank" class="file-button">Abrir en nueva pestaña</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+        
+
+        <!-- Usuarios -->
+        <section class="section" id="usuarios">
+            <h2>👥 Público Objetivo - Nuestros 4 Tipos de Usuarios</h2>
+            
+            <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem; color: #666;">
+                El proyecto está diseñado para cuatro perfiles de usuarios claramente definidos, cada uno con necesidades y expectativas específicas:
+            </p>
+
+            <div class="users-grid">
+                <!-- Usuario A -->
+                <div class="user-card" id="usuario-a">
+                    <div class="member-photo">
+                        <span class="photo-icon">🆕</span>
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Usuario A</h3>
+                        <p class="member-role">Cliente Sin Experiencia</p>
+                        <p><strong>Perfil:</strong> Una persona que nunca ha contratado un servicio de DJ o músico profesional.</p>
+                        
+                        <div class="detail-item">
+                            <strong>Necesidades:</strong> Interfaz altamente intuitiva, recomendaciones claras, ejemplos visuales y guías paso a paso para orientarse en el proceso de elección.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Expectativas:</strong> Proceso simple y sin complicaciones, con ayuda contextual en cada paso.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Edad:</strong> 20-35 años
+                        </div>
+                        
+                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="interview-button">Ver Video de Entrevista</a>
+                    </div>
+                </div>
+
+                <!-- Usuario B -->
+                <div class="user-card" id="usuario-b">
+                    <div class="member-photo">
+                        <span class="photo-icon">🎉</span>
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Usuario B</h3>
+                        <p class="member-role">Cliente Ocasional</p>
+                        <p><strong>Perfil:</strong> Una persona que ha contratado al menos una vez los servicios de un DJ profesional.</p>
+                        
+                        <div class="detail-item">
+                            <strong>Necesidades:</strong> Eficiencia en la búsqueda, comparaciones rápidas y confianza en las valoraciones y reseñas.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Expectativas:</strong> Encontrar opciones de calidad rápidamente sin dedicar mucho tiempo a la búsqueda.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Edad:</strong> 25-45 años
+                        </div>
+                        
+                        <a href="https://youtu.be/WbK4ibPPGNA" target="_blank" rel="noopener noreferrer" class="interview-button">Ver Video de Entrevista</a>
+                    </div>
+                </div>
+
+                <!-- Usuario C -->
+                <div class="user-card" id="usuario-c">
+                    <div class="member-photo">
+                        <span class="photo-icon">🏢</span>
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Usuario C</h3>
+                        <p class="member-role">Cliente Profesional</p>
+                        <p><strong>Perfil:</strong> Administrador de restobar que contrata con regularidad servicios de DJ.</p>
+                        
+                        <div class="detail-item">
+                            <strong>Necesidades:</strong> Herramientas avanzadas de filtrado, gestión de contactos favoritos, historial de contrataciones y evaluación detallada.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Expectativas:</strong> Sistema profesional que optimice su flujo de trabajo y le permita mantener relaciones con DJs de confianza.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Edad:</strong> 30-50 años
+                        </div>
+                        
+                        <a href="https://youtu.be/YBcdepELP2g" target="_blank" rel="noopener noreferrer" class="interview-button">Ver Video de Entrevista</a>
+                    </div>
+                </div>
+
+                <!-- Usuario D (DJ) -->
+                <div class="user-card" id="usuario-d">
+                    <div class="member-photo">
+                        <span class="photo-icon">🎧</span>
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Usuario D</h3>
+                        <p class="member-role">DJ Profesional</p>
+                        <p><strong>Perfil:</strong> DJ con experiencia en el rubro que busca expandir su negocio y profesionalizar su servicio.</p>
+                        
+                        <div class="detail-item">
+                            <strong>Necesidades:</strong> Visibilidad online, organización profesional del portafolio, protección de pagos, gestión de agenda y construcción de reputación verificable.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Expectativas:</strong> Plataforma que le permita crecer profesionalmente, recibir más contrataciones y eliminar el riesgo de impagos.
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Edad:</strong> 18-45 años
+                        </div>
+                        
+                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="interview-button">Ver Video de Entrevista</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="highlight-box">
+            <h3>✨ Lo Que Realmente Se Necesita</h3>
+            <p>Una plataforma que simplifique todo este proceso: donde los clientes puedan buscar, comparar y contratar DJs de forma sencilla, y donde los DJs puedan mostrar su trabajo, gestionar sus contrataciones, asegurar sus pagos y construir su reputación profesional, todo en un solo lugar con respaldo y transparencia para ambas partes.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p> NOIZEE</p>
+        <p>© 2025 - Universidad Nacional de San Agustín - Ciencias de la Computación</p>
+        <p>Proyecto de Interacción Humano-Computador - Noizee Team</p>
+    </footer>
+
+    <script>
+        // PATRÓN: Feedback Visual - Smooth Scroll
+        document.querySelectorAll('.submenu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Actualizar item activo
+                    document.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

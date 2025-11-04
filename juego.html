@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Juego - Burger Rush</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        /* PATRÓN: Navegación Persistente */
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        nav a.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+        }
+
+        /* PATRÓN: Breadcrumbs */
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            color: #666;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* Principio de Figura-Fondo */
+        .page-header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%);
+            color: #333;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Principio de Cierre */
+        .section {
+            background: white;
+            margin-bottom: 3rem;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            color: #FF6B6B;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        /* Principio de Continuidad */
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B6B, #FFE66D);
+            border-radius: 2px;
+        }
+
+        .section p {
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+        }
+
+        /* PATRÓN: Indicadores de Progreso - Principio de Continuidad */
+        .process-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Principio de Conexión: línea que conecta todos los pasos */
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #FF6B6B, #FFE66D);
+            border-radius: 2px;
+        }
+
+        /* Principio de Proximidad y Similitud */
+        .process-step {
+            position: relative;
+            padding-left: 120px;
+            margin-bottom: 3rem;
+        }
+
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            z-index: 1;
+        }
+
+        .step-content {
+            background: #fff9f0;
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 4px solid #FF6B6B;
+        }
+
+        .step-content h3 {
+            color: #FF6B6B;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-content p {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* Placeholder para imágenes */
+        .image-placeholder {
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+            border: 3px dashed #999;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-placeholder-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .image-placeholder p {
+            color: #666;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* PATRÓN: Cards para problemas/soluciones */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        /* Principio de Similitud y Figura-Fondo */
+        .problems-card {
+            background: #fff5f5;
+            border: 3px solid #ff4444;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .problems-card h3 {
+            color: #ff4444;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .solutions-card {
+            background: #f0fff4;
+            border: 3px solid #44ff88;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .solutions-card h3 {
+            color: #00aa44;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Principio de Proximidad */
+        .item-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .item-list li {
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .problems-card .item-list li {
+            border-left: 4px solid #ff4444;
+        }
+
+        .solutions-card .item-list li {
+            border-left: 4px solid #44ff88;
+        }
+
+        /* PATRÓN: Feedback Visual */
+        .item-list li:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Videos de pruebas - Principio de Similitud */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .video-card-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .video-card h4 {
+            color: #FF6B6B;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .video-card p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .video-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .video-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2.5rem 2rem;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .process-timeline::before {
+                left: 30px;
+            }
+
+            .process-step {
+                padding-left: 90px;
+            }
+
+            .step-number {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            nav a {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .section {
+                padding: 2rem 1.5rem;
+            }
+
+            .process-timeline::before {
+                display: none;
+            }
+
+            .process-step {
+                padding-left: 0;
+                text-align: center;
+            }
+
+            .step-number {
+                position: relative;
+                margin: 0 auto 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PATRÓN: Navegación Persistente -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="descripcion.html">Descripción General</a></li>
+            <li><a href="juego.html" class="active">El Juego</a></li>
+            <li><a href="nosotros.html">Sobre Nosotros</a></li>
+        </ul>
+    </nav>
+
+    <!-- PATRÓN: Breadcrumbs -->
+    <div class="breadcrumb">
+        <a href="index.html">🏠 Inicio</a> / <span>🎮 El Juego - Burger Rush</span>
+    </div>
+
+    <!-- Principio de Figura-Fondo -->
+    <div class="page-header">
+        <h1>🍔 BURGER RUSH 🍔</h1>
+        <p>Fast Food Frenzy - Proceso de Desarrollo</p>
+    </div>
+
+    <div class="container">
+        <section class="section">
+            <h2>Proceso de Desarrollo</h2>
+            <p style="text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 3rem;">
+                Del concepto inicial a la implementación final
+            </p>
+
+            <!-- PATRÓN: Indicadores de Progreso - Principio de Continuidad y Conexión -->
+            <div class="process-timeline">
+                <!-- Paso 1: Sketching/Storyboarding -->
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>📝 Sketching/Storyboarding</h3>
+                        <p>
+                            Se crearon bocetos para visualizar las mecánicas de preparación de hamburguesas, incluyendo la selección de ingredientes, el sistema de pedidos y la gestión del tiempo. Se exploraron distintos diseños para la interfaz de usuario, asegurando que todos los elementos sean claramente visibles (principio de <strong>Visibilidad</strong>) y que los controles sean intuitivos (<strong>Affordances</strong>).
+                        </p>
+                        
+                    <img src="images/boceto.jpg" alt="Bocetos de Burger Rush" style="width: 100%; max-width: 100%; border-radius: 12px; margin: 2rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+
+
+                    </div>
+                </div>
+
+                <!-- Paso 2: Maqueta -->
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>🎨 Maqueta</h3>
+                        <p>
+                            Se desarrolló un prototipo jugable que permitió realizar evaluaciones con usuarios, recopilando retroalimentación valiosa sobre la experiencia de juego. Los participantes probaron las mecánicas de preparación de hamburguesas, evaluaron la claridad de los ingredientes disponibles y validaron el sistema de feedback visual con los estados de los clientes.
+                        </p>
+                        
+                       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
+    <img src="images/Maqueta1.jpg" alt="Maqueta 1 de Burger Rush" style="width: 100%; height: 400px; object-fit: contain; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <img src="images/Maqueta2.jpg" alt="Maqueta 2 de Burger Rush" style="width: 100%; height: 400px; object-fit: contain; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+</div>
+                    </div>
+                </div>
+
+                <!-- Paso 3: Primera Fase -->
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>🎮 Primera Fase Videojuego</h3>
+                        <p>
+                            En la Primera Versión, se identificaron varios problemas que afectaban la experiencia del usuario. A través del feedback de los jugadores, se implementaron soluciones que mejoraron significativamente la jugabilidad y el cumplimiento de los principios de diseño de interacción.
+                        </p>
+                        
+                        <!-- Placeholder para imagen de primera fase -->
+                        <div class="image-placeholder">
+                            <div class="image-placeholder-icon">🎮</div>
+                            <p>Espacio reservado para primera fase</p>
+                            <p style="font-size: 1rem; color: #999; margin-top: 0.5rem;">Aquí irán capturas de la primera fase del juego</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pruebas con Usuarios - PATRÓN: Cards -->
+        <section class="section">
+            <h2>🎥 Pruebas con Usuarios</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">
+                Se realizaron sesiones de evaluación con usuarios reales para identificar problemas de usabilidad y recopilar feedback sobre la experiencia de juego.
+            </p>
+
+            <!-- Principio de Similitud -->
+            <div class="video-grid">
+    <div class="video-card">
+        <div class="video-card-icon">🎬</div>
+        <h4>Prueba de Usuario 1</h4>
+        <p>Burger Rush Fase I Maqueta</p>
+        <a href="https://www.youtube.com/watch?v=r6n-WKPSIEI" target="_blank" class="video-button">▶️ Ver Video en YouTube</a>
+    </div>
+    <div class="video-card">
+        <div class="video-card-icon">🎬</div>
+        <h4>Prueba de Usuario 2</h4>
+        <p>Burger Rush Fase I Maqueta</p>
+        <a href="https://www.youtube.com/watch?v=_ChA8w8k1uY" target="_blank" class="video-button">▶️ Ver Video en YouTube</a>
+    </div>
+</div>
+            
+            <!-- Placeholder para capturas de las pruebas -->
+            <div class="image-placeholder">
+                <div class="image-placeholder-icon">📹</div>
+                <p>Espacio reservado para capturas de pruebas</p>
+                <p style="font-size: 1rem; color: #999; margin-top: 0.5rem;">Aquí irán capturas de pantalla de las sesiones de prueba</p>
+            </div>
+        </section>
+
+        <!-- Problemas vs Soluciones - Principio de Figura-Fondo y Similitud -->
+        <section class="section">
+            <h2>Análisis de Usabilidad</h2>
+            
+            <div class="comparison-container">
+                <!-- Problemas -->
+                <div class="problems-card">
+                    <h3>❌ Problemas Identificados</h3>
+                    <ul class="item-list">
+                        <li>Los jugadores no lograban ver el tiempo restante para completar pedidos</li>
+                        <li>Los botones de ingredientes no estaban claramente implementados</li>
+                        <li>Distribución confusa - usuarios pensaban que debían cocinar en lugar de ensamblar</li>
+                        <li>Visibilidad insuficiente de los iconos de colores de ingredientes</li>
+                        <li>Animaciones de los clientes eran estáticas y no reflejaban su estado</li>
+                        <li>No se mostraban puntuaciones o propinas al completar pedidos</li>
+                        <li>Algunos elementos como las bandejas no eran visibles para los jugadores</li>
+                    </ul>
+                </div>
+
+                <!-- Soluciones -->
+                <div class="solutions-card">
+                    <h3>✅ Soluciones Implementadas</h3>
+                    <ul class="item-list">
+                        <li><strong>Visibilidad:</strong> Se añadió temporizador grande y visible en pantalla</li>
+                        <li><strong>Affordances:</strong> Botones de ingredientes rediseñados para parecer claramente clicables</li>
+                        <li><strong>Restricciones:</strong> Redistribución de elementos para evitar confusión sobre las acciones disponibles</li>
+                        <li><strong>Feedback:</strong> Iconos de colores mejorados con mayor contraste</li>
+                        <li><strong>Consistencia:</strong> Animaciones dinámicas de clientes que reflejan su estado emocional</li>
+                        <li><strong>Feedback Visual:</strong> Sistema de puntuación visible con +100, +50, +10 puntos</li>
+                        <li>Mejora de visibilidad de bandejas y elementos interactivos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Placeholder para comparación visual -->
+            <div class="image-placeholder" style="margin-top: 2rem;">
+                <div class="image-placeholder-icon">🔄</div>
+                <p>Espacio reservado para comparación antes/después</p>
+                <p style="font-size: 1rem; color: #999; margin-top: 0.5rem;">Aquí irán capturas comparativas del antes y después de las mejoras</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p> NOIZEE </p>
+        <p>© 2025 - Universidad Nacional de San Agustín - Ciencias de la Computación</p>
+        <p>Proyecto de Interacción Humano-Computador - Noizee Team</p>
+    </footer>
+</body>
+</html>
